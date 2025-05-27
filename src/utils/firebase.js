@@ -1,5 +1,5 @@
 // utils/firebase.js
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 
 // Votre configuration Firebase
@@ -13,9 +13,18 @@ const firebaseConfig = {
   measurementId: "G-5NJNXZ8EML",
 };
 
-// Initialiser Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Initialiser Firebase (ou récupérer l'instance existante)
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Exporter app et analytics pour pouvoir les importer ailleurs
+// Initialiser Analytics uniquement côté client
+let analytics = null;
+if (typeof window !== "undefined") {
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation d'Analytics :", error);
+  }
+}
+
+// Exporter l'application et analytics
 export { app, analytics };
